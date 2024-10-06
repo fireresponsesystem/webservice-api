@@ -3,6 +3,8 @@ import express from "express";
 import pkg from "pg";
 import axios from "axios";
 const { Client } = pkg;
+import WebSocket from "ws"; // Import the WebSocket library
+
 const app = express();
 const PORT = 3001;
 
@@ -25,6 +27,17 @@ pgClient
     console.error("Error connecting to PostgreSQL:", err);
   });
 
+const websocketURL = "ws://localhost:3002"; // Replace with your WebSocket server URL
+//   const websocketURL = "wss://your-websocket-server-url"; // Replace with your WebSocket server URL
+const websocketClient = new WebSocket(websocketURL);
+
+websocketClient.on("open", () => {
+  console.log("Connected to WebSocket server");
+});
+
+websocketClient.on("error", (error) => {
+  console.error("WebSocket error:", error);
+});
 // Express endpoint to add an incident
 app.post("/api/sms", async (req, res) => {
   const data = req.body;
@@ -48,7 +61,6 @@ app.post("/api/sms", async (req, res) => {
 
     const image_url =
       "https://www.dkiservices.com/wp-content/uploads/2020/02/Is-Food-Safe-to-Eat-After-a-Fire_.jpg";
-
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
@@ -58,21 +70,35 @@ app.post("/api/sms", async (req, res) => {
 
     // Insert data into the notifications table
     await pgClient.query(
-      `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded) 
+      `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded)
          VALUES ($1, $2, $3, $4, NOW())`,
       [house_no, owner, coordinates, image_url]
     );
 
-    // Send notification to WebSocket server
-    const message = JSON.stringify({ house_no, coordinates, owner, image_url });
-    console.log({message})
-    await axios.post("https://websocket-server-14gk.onrender.com/notify", {
-      message,
+    //   // Send notification to WebSocket server
+    const message = JSON.stringify({
+      house_no,
+      coordinates,
+      owner,
+      image_url,
     });
-   
+
+    //   await axios.post("https://websocket-server-14gk.onrender.com/notify", {
+    //     message,
+    //   });
+
+    // Send message over WebSocket connection
+    if (websocketClient.readyState === WebSocket.OPEN) {
+      websocketClient.send(
+        JSON.stringify({ type: "data_inserted", data: message })
+      );
+    } else {
+      console.error("WebSocket is not open. Message not sent.");
+    }
+
     res.status(200).json({ message: "Data inserted successfully" });
   } catch (error) {
-    // console.error("Error inserting data:", error);
+    console.error("Error inserting data:", error);
     res.status(500).json({ message: "Reports creation failed", error });
   }
 });
