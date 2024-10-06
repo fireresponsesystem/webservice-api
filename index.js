@@ -51,15 +51,15 @@ app.post("/api/sms", async (req, res) => {
 
     // Insert data into the notifications table
     await pgClient.query(
-      `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded) 
-         VALUES ($1, $2, $3, $4, NOW())`,
+      `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
+             VALUES ($1, $2, $3, $4, NOW())`,
       [house_no, owner, coordinates, image_url]
     );
 
     // Insert data into the notifications table
     await pgClient.query(
-      `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
-           VALUES ($1, $2, $3, $4, NOW())`,
+      `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded) 
+         VALUES ($1, $2, $3, $4, NOW())`,
       [house_no, owner, coordinates, image_url]
     );
 
@@ -73,7 +73,7 @@ app.post("/api/sms", async (req, res) => {
     res.status(200).json({ message: "Data inserted successfully" });
   } catch (error) {
     console.error("Error inserting data:", error);
-    res.status(500).json({ message: "Reports creation failed" });
+    res.status(500).json({ message: "Reports creation failed",error });
   }
 });
 
