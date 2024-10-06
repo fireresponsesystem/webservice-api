@@ -65,15 +65,15 @@ app.post("/api/sms", async (req, res) => {
 
     // Send notification to WebSocket server
     const message = JSON.stringify({ house_no, coordinates, owner, image_url });
-
+    console.log({message})
     await axios.post("https://websocket-server-14gk.onrender.com/notify", {
       message,
     });
-
+   
     res.status(200).json({ message: "Data inserted successfully" });
   } catch (error) {
-    console.error("Error inserting data:", error);
-    res.status(500).json({ message: "Reports creation failed",error });
+    // console.error("Error inserting data:", error);
+    res.status(500).json({ message: "Reports creation failed", error });
   }
 });
 
