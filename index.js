@@ -27,8 +27,8 @@ pgClient
     console.error("Error connecting to PostgreSQL:", err);
   });
 
-const websocketURL = "ws://localhost:3002"; // Replace with your WebSocket server URL
-//   const websocketURL = "wss://your-websocket-server-url"; // Replace with your WebSocket server URL
+// const websocketURL = "ws://localhost:3002"; // Replace with your WebSocket server URL
+   const websocketURL = "wss://websocket-server-14gk.onrender.com"; // Replace with your WebSocket server URL
 const websocketClient = new WebSocket(websocketURL);
 
 websocketClient.on("open", () => {
