@@ -42,6 +42,7 @@ websocketClient.on("error", (error) => {
 app.post("/api/sms", async (req, res) => {
   const data = req.body;
   const house_no = String(data.house_no);
+  const image_url = String(data.image_url);
 
   try {
     // Fetch account information based on the house number (use parameterized query)
@@ -59,8 +60,8 @@ app.post("/api/sms", async (req, res) => {
 
     const { coordinates, owner } = result.rows[0];
 
-    const image_url =
-      "https://www.dkiservices.com/wp-content/uploads/2020/02/Is-Food-Safe-to-Eat-After-a-Fire_.jpg";
+    // const image_url =
+    //   "https://www.dkiservices.com/wp-content/uploads/2020/02/Is-Food-Safe-to-Eat-After-a-Fire_.jpg";
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
