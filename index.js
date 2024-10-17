@@ -84,6 +84,7 @@ app.post("/api/sms", async (req, res) => {
   const data = req.body;
   const house_no = String(data.house_no);
   const folderUrl = String(data.image_url);
+  const date = new Date();
 
   const folderId = extractFolderId(folderUrl);
   if (!folderId) {
@@ -119,14 +120,14 @@ app.post("/api/sms", async (req, res) => {
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
-             VALUES ($1, $2, $3, $4, NOW())`,
+             VALUES ($1, $2, $3, $4, ${date.toUTCString()})`,
       [house_no, owner, coordinates, image_url]
     );
 
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded)
-         VALUES ($1, $2, $3, $4, NOW())`,
+         VALUES ($1, $2, $3, $4,  ${date.toUTCString()})`,
       [house_no, owner, coordinates, image_url]
     );
 
