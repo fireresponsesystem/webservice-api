@@ -57,7 +57,7 @@ async function getFirstImageUrl(folderId) {
   try {
     const res = await drive.files.list({
       q: `'${folderId}' in parents and mimeType contains 'image/'`,
-      orderBy: "createdTime", // Order by creation time in ascending order
+      orderBy: "createdTime desc",
       pageSize: 1, // Get the first image
       fields: "files(id, name, mimeType)",
     });
@@ -84,7 +84,6 @@ app.post("/api/sms", async (req, res) => {
   const data = req.body;
   const house_no = String(data.house_no);
   const folderUrl = String(data.image_url);
-  const date = new Date();
 
   const folderId = extractFolderId(folderUrl);
   if (!folderId) {
@@ -106,7 +105,6 @@ app.post("/api/sms", async (req, res) => {
     }
 
     const { coordinates, owner } = result.rows[0];
-
     // Fetch the latest image from the Google Drive folder
     const image_url = await getFirstImageUrl(folderId);
     if (!image_url) {
@@ -120,14 +118,14 @@ app.post("/api/sms", async (req, res) => {
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
-             VALUES ($1, $2, $3, $4, ${date.toUTCString()})`,
+             VALUES ($1, $2, $3, $4, NOW())`,
       [house_no, owner, coordinates, image_url]
     );
 
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded)
-         VALUES ($1, $2, $3, $4,  ${date.toUTCString()})`,
+         VALUES ($1, $2, $3, $4, NOW())`,
       [house_no, owner, coordinates, image_url]
     );
 
