@@ -14,7 +14,7 @@ app.use(express.json());
 // PostgreSQL client setup
 const pgClient = new Client({
   connectionString:
-    "postgres://default:U7doLIpOJf2P@ep-falling-morning-a1qnoim6-pooler.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require&options=-c%20timezone=UTC",
+    "postgres://default:U7doLIpOJf2P@ep-falling-morning-a1qnoim6-pooler.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require",
 });
 
 // Connect to PostgreSQL
@@ -91,6 +91,7 @@ app.post("/api/sms", async (req, res) => {
   }
 
   try {
+    await pgClient.query(`SET timezone = 'UTC';`); // Set timezone for this session
     // Fetch account information based on the house number (use parameterized query)
     const result = await pgClient.query(
       `SELECT coordinates, owner FROM accounts WHERE house_no = $1`,
@@ -118,15 +119,15 @@ app.post("/api/sms", async (req, res) => {
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
-             VALUES ($1, $2, $3, $4, NOW())`,
-      [house_no, owner, coordinates, image_url]
+             VALUES ($1, $2, $3, $4, $5)`,
+      [house_no, owner, coordinates, image_url, new Date().toISOString()]
     );
 
     // Insert data into the notifications table
     await pgClient.query(
       `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded)
-         VALUES ($1, $2, $3, $4, NOW())`,
-      [house_no, owner, coordinates, image_url]
+         VALUES ($1, $2, $3, $4,  $5)`,
+      [house_no, owner, coordinates, image_url, new Date().toISOString()]
     );
 
     //   // Send notification to WebSocket server
