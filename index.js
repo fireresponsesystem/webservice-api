@@ -14,7 +14,7 @@ app.use(express.json());
 // PostgreSQL client setup
 const pgClient = new Client({
   connectionString:
-    "postgres://default:U7doLIpOJf2P@ep-falling-morning-a1qnoim6.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require",
+    "postgres://default:U7doLIpOJf2P@ep-falling-morning-a1qnoim6-pooler.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require&options=-c%20timezone=UTC",
 });
 
 // Connect to PostgreSQL
