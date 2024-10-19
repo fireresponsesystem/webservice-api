@@ -14,7 +14,7 @@ app.use(express.json());
 // PostgreSQL client setup
 const pgClient = new Client({
   connectionString:
-    "postgres://default:Jg3NV6QuMzfq@ep-restless-hill-14773517-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require",
+    "postgres://default:U7doLIpOJf2P@ep-falling-morning-a1qnoim6.ap-southeast-1.aws.neon.tech:5432/verceldb?sslmode=require",
 });
 
 // Connect to PostgreSQL
