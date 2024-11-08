@@ -94,7 +94,7 @@ app.post("/api/sms", async (req, res) => {
     await pgClient.query(`SET timezone = 'UTC';`); // Set timezone for this session
     // Fetch account information based on the house number (use parameterized query)
     const result = await pgClient.query(
-      `SELECT coordinates, owner FROM accounts WHERE house_no = $1`,
+      `SELECT coordinates, owner, address FROM accounts WHERE house_no = $1`,
       [house_no]
     );
 
@@ -104,8 +104,8 @@ app.post("/api/sms", async (req, res) => {
         message: `There is no existing account with house id ${house_no}`,
       });
     }
-
-    const { coordinates, owner } = result.rows[0];
+    console.log({ results: result.rows[0] });
+    const { coordinates, owner, address } = result.rows[0];
     // Fetch the latest image from the Google Drive folder
     const image_url = await getFirstImageUrl(folderId);
     if (!image_url) {
@@ -118,16 +118,30 @@ app.post("/api/sms", async (req, res) => {
     //   "https://www.dkiservices.com/wp-content/uploads/2020/02/Is-Food-Safe-to-Eat-After-a-Fire_.jpg";
     // Insert data into the notifications table
     await pgClient.query(
-      `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded) 
-             VALUES ($1, $2, $3, $4, $5)`,
-      [house_no, owner, coordinates, image_url, new Date().toISOString()]
+      `INSERT INTO reports (house_no, owner, coordinates, image_url, date_and_time_recorded,address) 
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        house_no,
+        owner,
+        coordinates,
+        image_url,
+        new Date().toISOString(),
+        address,
+      ]
     );
 
     // Insert data into the notifications table
     await pgClient.query(
-      `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded)
-         VALUES ($1, $2, $3, $4,  $5)`,
-      [house_no, owner, coordinates, image_url, new Date().toISOString()]
+      `INSERT INTO notifications (house_no, owner, coordinates, image_url, date_and_time_recorded, address)
+         VALUES ($1, $2, $3, $4,  $5, $6)`,
+      [
+        house_no,
+        owner,
+        coordinates,
+        image_url,
+        new Date().toISOString(),
+        address,
+      ]
     );
 
     //   // Send notification to WebSocket server
